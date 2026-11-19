@@ -45,11 +45,6 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name == 'add-release-workflow' && 'v3.8.9-est' || github.ref_name }}
           current_rmq_ref: v3.8.9
           base_rmq_ref: v3.8.9
-          dep_rabbit: git https://github.com/Nordix/rabbitmq-server.git v3.8.9-est
-          dep_rabbitmq_management: git https://github.com/Nordix/rabbitmq-management.git v3.8.9-est
-          dep_rabbitmq_federation_management: git https://github.com/Nordix/rabbitmq-federation-management.git v3.8.9-est
-          dep_rabbitmq_amqp1_0: git https://github.com/rabbitmq/rabbitmq-amqp1.0.git v3.8.9
-          dep_amqp10_common: git https://github.com/Nordix/rabbitmq-amqp1.0-common.git v3.8.9-est
         run: |
           git config --global --add safe.directory '*'
           git config --global url."https://github.com/".insteadOf git@github.com:
@@ -59,12 +54,7 @@ jobs:
           printf '#!/bin/bash\nif [[ "$*" == "local.hex --force" ]]; then\n  exec /usr/bin/mix archive.install --force /tmp/hex-1.0.1.ez\nfi\nexec /usr/bin/mix "$@"\n' | sudo tee /usr/local/bin/mix > /dev/null
           sudo chmod +x /usr/local/bin/mix
           rm -rf deps .erlang.mk
-          make source-dist PROJECT_VERSION="$VERSION" \
-            dep_rabbit="git https://github.com/Nordix/rabbitmq-server.git v3.8.9-est" \
-            dep_rabbitmq_management="git https://github.com/Nordix/rabbitmq-management.git v3.8.9-est" \
-            dep_rabbitmq_federation_management="git https://github.com/Nordix/rabbitmq-federation-management.git v3.8.9-est" \
-            dep_rabbitmq_amqp1_0="git https://github.com/rabbitmq/rabbitmq-amqp1.0.git v3.8.9" \
-            dep_amqp10_common="git https://github.com/Nordix/rabbitmq-amqp1.0-common.git v3.8.9-est"
+          make source-dist PROJECT_VERSION="$VERSION"
           find PACKAGES/ -name "*.tar.xz" -print
 
       - name: Publish to Artifactory
