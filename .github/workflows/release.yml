@@ -54,7 +54,11 @@ jobs:
           git config --global credential.helper ''
           VERSION="${RELEASE_TAG#v}"
           rm -rf deps .erlang.mk
-          make source-dist PROJECT_VERSION="$VERSION"
+          make source-dist PROJECT_VERSION="$VERSION" \
+            dep_rabbit="git https://github.com/Nordix/rabbitmq-server.git v3.8.9-est" \
+            dep_rabbitmq_management="git https://github.com/Nordix/rabbitmq-management.git v3.8.9-est" \
+            dep_rabbitmq_federation_management="git https://github.com/Nordix/rabbitmq-federation-management.git v3.8.9-est" \
+            dep_rabbitmq_amqp1_0="git https://github.com/Nordix/rabbitmq-amqp1.0-common.git v3.8.9-est"
           find PACKAGES/ -name "*.tar.xz" -print
           sha256sum PACKAGES/*.tar.xz > "PACKAGES/rabbitmq-server-${RELEASE_TAG}.tar.xz.sha256"
 
