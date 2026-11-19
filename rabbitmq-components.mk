@@ -123,7 +123,6 @@ dep_ra = git https://github.com/rabbitmq/ra.git master
 dep_rabbit                         = git https://github.com/Nordix/rabbitmq-server.git v3.8.9-est
 dep_rabbitmq_management            = git https://github.com/Nordix/rabbitmq-management.git v3.8.9-est
 dep_rabbitmq_federation_management = git https://github.com/Nordix/rabbitmq-federation-management.git v3.8.9-est
-dep_amqp10_common                  = git https://github.com/Nordix/rabbitmq-amqp1.0-common.git v3.8.9-est
 dep_ranch = hex 1.7.1
 dep_recon = hex 2.5.1
 dep_observer_cli = hex 1.5.4

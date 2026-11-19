@@ -45,6 +45,7 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name == 'add-release-workflow' && 'v3.8.9-est' || github.ref_name }}
           current_rmq_ref: v3.8.9
           base_rmq_ref: v3.8.9
+          dep_amqp10_common: git https://github.com/Nordix/rabbitmq-amqp1.0-common.git v3.8.9-est
         run: |
           git config --global --add safe.directory '*'
           git config --global url."https://github.com/".insteadOf git@github.com:
