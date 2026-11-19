@@ -251,10 +251,7 @@ define dump_hex_cache_to_erl_term
     "^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})\.([0-9]{2})",
     [{capture, all_but_first, list}]),
   [Year, Month, Day, Hour, Min, Sec] = [erlang:list_to_integer(V) || V <- Date],
-  Tab = case ets:file2tab(In) of
-    {ok, T} -> T;
-    {error, _} -> ets:new(hex_registry, [set, public])
-  end,
+  {ok, Tab} = ets:file2tab(In),
   true = ets:insert(Tab, {last_update, {{Year, Month, Day}, {Hour, Min, Sec}}}),
   Props = [
     Prop
