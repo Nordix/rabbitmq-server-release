@@ -64,7 +64,6 @@ jobs:
             dep_rabbitmq_federation_management="git https://github.com/Nordix/rabbitmq-federation-management.git v3.8.9-est" \
             dep_rabbitmq_amqp1_0="git https://github.com/Nordix/rabbitmq-amqp1.0-common.git v3.8.9-est"
           find PACKAGES/ -name "*.tar.xz" -print
-          sha256sum PACKAGES/*.tar.xz > "PACKAGES/rabbitmq-server-${RELEASE_TAG}.tar.xz.sha256"
 
       - name: Publish to Artifactory
         uses: jfrog/setup-jfrog-cli@v4
@@ -79,7 +78,8 @@ jobs:
           jf rt upload \
             --url="$JF_URL" \
             --access-token="$JF_ACCESS_TOKEN" \
-            "PACKAGES/*" \
+            --flat=true \
+            "PACKAGES/*.tar.xz" \
             "allies-erlang/rabbitmq-server/${{ github.ref_name }}/" \
             --build-name="rabbitmq-server" \
             --build-number="${{ github.run_number }}"
