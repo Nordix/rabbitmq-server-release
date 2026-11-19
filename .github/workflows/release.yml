@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-22.04
+    env:
+      OTP_VERSION: '22.2'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build artifact
+        run: |
+          docker build \
+            --build-arg OTP_VERSION="${{ env.OTP_VERSION }}" \
+            --build-arg OTP_SHA256="232c37a502c7e491a9cbf86acb7af64fbc1a793fcbcbd0093cb029cf1c3830a7" \
+            --tag "rabbitmq-ci:otp-${{ env.OTP_VERSION }}" \
+            .
+          VERSION="${{ github.ref_name }}"; VERSION="${VERSION#v}"
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/workspace" \
+            --workdir /workspace \
+            --env base_rmq_ref="${{ env.base_rmq_ref }}" \
+            --env current_rmq_ref="${{ env.current_rmq_ref }}" \
+            --env RELEASE_TAG="${{ github.ref_name }}" \
+            "rabbitmq-ci:otp-${{ env.OTP_VERSION }}" \
+            bash -euo pipefail -c '
+              git config --global --add safe.directory "*"
+              git config --global url."https://github.com/".insteadOf git@github.com:
+              VERSION="$RELEASE_TAG"; VERSION="${VERSION#v}"
+              rm -rf deps .erlang.mk
+              make source-dist \
+                PROJECT_VERSION="$VERSION" \
+                base_rmq_ref=v3.8.9 \
+                dep_rabbit="git https://github.com/Nordix/rabbitmq-server.git $RELEASE_TAG" \
+                dep_rabbitmq_management="git https://github.com/Nordix/rabbitmq-management.git $RELEASE_TAG" \
+                dep_rabbitmq_federation_management="git https://github.com/Nordix/rabbitmq-federation-management.git $RELEASE_TAG" \
+                dep_rabbitmq_amqp1_0="git https://github.com/Nordix/rabbitmq-amqp1.0-common.git $RELEASE_TAG"
+              find PACKAGES/ -name "*.tar.xz" -print
+            '
+          sha256sum rabbitmq-server-release/PACKAGES/*.tar.xz \
+            > "rabbitmq-server-release/PACKAGES/rabbitmq-server-${{ github.ref_name }}.tar.xz.sha256"
+
+      - name: Publish to Artifactory
+        uses: jfrog/setup-jfrog-cli@v4
+        with:
+          version: latest
+        env:
+          JF_URL: ${{ secrets.ARTIFACTORY_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+
+      - run: |
+          jf rt upload \
+            "rabbitmq-server-release/PACKAGES/*" \
+            "allies-erlang/rabbitmq-server/${{ github.ref_name }}/" \
+            --build-name="rabbitmq-server" \
+            --build-number="${{ github.run_number }}"
+
+          jf rt build-publish rabbitmq-server ${{ github.run_number }}
