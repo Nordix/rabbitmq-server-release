@@ -50,6 +50,7 @@ jobs:
           rm -rf deps .erlang.mk
           make source-dist \
             PROJECT_VERSION="$VERSION" \
+            current_rmq_ref=v3.8.9 \
             base_rmq_ref=v3.8.9 \
             dep_rabbit="git https://github.com/Nordix/rabbitmq-server.git $RELEASE_TAG" \
             dep_rabbitmq_management="git https://github.com/Nordix/rabbitmq-management.git $RELEASE_TAG" \
