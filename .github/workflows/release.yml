@@ -42,20 +42,19 @@ jobs:
       - name: Build artifact
         env:
           RELEASE_TAG: ${{ github.ref_name }}
+          current_rmq_ref: v3.8.9
+          base_rmq_ref: v3.8.9
+          dep_rabbit: git https://github.com/Nordix/rabbitmq-server.git ${{ github.ref_name }}
+          dep_rabbitmq_management: git https://github.com/Nordix/rabbitmq-management.git ${{ github.ref_name }}
+          dep_rabbitmq_federation_management: git https://github.com/Nordix/rabbitmq-federation-management.git ${{ github.ref_name }}
+          dep_rabbitmq_amqp1_0: git https://github.com/Nordix/rabbitmq-amqp1.0-common.git v3.8.9-est
         run: |
           git config --global --add safe.directory '*'
           git config --global url."https://github.com/".insteadOf git@github.com:
           git config --global credential.helper ''
           VERSION="${RELEASE_TAG#v}"
           rm -rf deps .erlang.mk
-          make source-dist \
-            PROJECT_VERSION="$VERSION" \
-            current_rmq_ref=v3.8.9 \
-            base_rmq_ref=v3.8.9 \
-            dep_rabbit="git https://github.com/Nordix/rabbitmq-server.git $RELEASE_TAG" \
-            dep_rabbitmq_management="git https://github.com/Nordix/rabbitmq-management.git $RELEASE_TAG" \
-            dep_rabbitmq_federation_management="git https://github.com/Nordix/rabbitmq-federation-management.git $RELEASE_TAG" \
-            dep_rabbitmq_amqp1_0="git https://github.com/Nordix/rabbitmq-amqp1.0-common.git v3.8.9-est"
+          make source-dist PROJECT_VERSION="$VERSION"
           find PACKAGES/ -name "*.tar.xz" -print
           sha256sum PACKAGES/*.tar.xz > "PACKAGES/rabbitmq-server-${RELEASE_TAG}.tar.xz.sha256"
 
