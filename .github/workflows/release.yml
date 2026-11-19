@@ -45,6 +45,7 @@ jobs:
         run: |
           git config --global --add safe.directory '*'
           git config --global url."https://github.com/".insteadOf git@github.com:
+          git config --global credential.helper ''
           VERSION="${RELEASE_TAG#v}"
           rm -rf deps .erlang.mk
           make source-dist \
