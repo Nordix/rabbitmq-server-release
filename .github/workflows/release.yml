@@ -54,7 +54,8 @@ jobs:
           git config --global url."https://github.com/".insteadOf git@github.com:
           git config --global credential.helper ''
           VERSION="${RELEASE_TAG#v}"
-          printf '#!/bin/bash\nif [[ "$*" == "local.hex --force" ]]; then\n  exec /usr/bin/mix archive.install --force https://repo.hex.pm/installs/1.12.0/hex-1.0.1.ez\nfi\nexec /usr/bin/mix "$@"\n' | sudo tee /usr/local/bin/mix > /dev/null
+          curl -o /tmp/hex-1.0.1.ez https://repo.hex.pm/installs/1.12.0/hex-1.0.1.ez
+          printf '#!/bin/bash\nif [[ "$*" == "local.hex --force" ]]; then\n  exec /usr/bin/mix archive.install --force /tmp/hex-1.0.1.ez\nfi\nexec /usr/bin/mix "$@"\n' | sudo tee /usr/local/bin/mix > /dev/null
           sudo chmod +x /usr/local/bin/mix
           rm -rf deps .erlang.mk
           make source-dist PROJECT_VERSION="$VERSION" \
