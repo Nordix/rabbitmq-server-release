@@ -53,15 +53,8 @@ jobs:
           git config --global url."https://github.com/".insteadOf git@github.com:
           git config --global credential.helper ''
           VERSION="${RELEASE_TAG#v}"
+          mix local.hex --force 1.0.1
           rm -rf deps .erlang.mk
-          PACKAGES_DIR="$(pwd)/PACKAGES/rabbitmq-server-${VERSION}"
-          mkdir -p "${PACKAGES_DIR}/deps/.hex"
-          erl -noshell -eval "
-            Tab = ets:new(hex_registry, [set, public, named_table]),
-            ets:insert(Tab, {last_update, {{2020,1,1},{0,0,0}}}),
-            ok = ets:tab2file(Tab, \"${PACKAGES_DIR}/deps/.hex/cache.ets\"),
-            init:stop().
-          "
           make source-dist PROJECT_VERSION="$VERSION" \
             dep_rabbit="git https://github.com/Nordix/rabbitmq-server.git v3.8.9-est" \
             dep_rabbitmq_management="git https://github.com/Nordix/rabbitmq-management.git v3.8.9-est" \
