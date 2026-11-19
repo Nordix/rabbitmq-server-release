@@ -1,8 +1,9 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - add-release-workflow
 
 jobs:
   build-and-publish:
@@ -41,7 +42,7 @@ jobs:
 
       - name: Build artifact
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ github.ref_name == 'add-release-workflow' && 'v3.8.9-est' || github.ref_name }}
           current_rmq_ref: v3.8.9
           base_rmq_ref: v3.8.9
           dep_rabbit: git https://github.com/Nordix/rabbitmq-server.git v3.8.9-est
