@@ -1,9 +1,8 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - add-release-workflow
+  release:
+    types: [published]
 
 jobs:
   build-and-publish:
@@ -42,15 +41,20 @@ jobs:
 
       - name: Build artifact
         env:
-          RELEASE_TAG: ${{ github.ref_name == 'add-release-workflow' && 'v3.8.9-est' || github.ref_name }}
-          current_rmq_ref: v3.8.9
-          base_rmq_ref: v3.8.9
-          dep_amqp10_common: git https://github.com/Nordix/rabbitmq-amqp1.0-common.git v3.8.9-est
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           git config --global --add safe.directory '*'
           git config --global url."https://github.com/".insteadOf git@github.com:
           git config --global credential.helper ''
           VERSION="${RELEASE_TAG#v}"
+          # v3.8.9-est-1 -> v3.8.9 (upstream tag)
+          UPSTREAM_TAG="$(echo $RELEASE_TAG | sed 's/-est-[0-9]*$//')"
+          # v3.8.9-est-1 -> v3.8.9-est (Nordix branch)
+          NORDIX_BRANCH="$(echo $RELEASE_TAG | sed 's/-[0-9]*$//')"
+          export NORDIX_RELEASE_TAG="$NORDIX_BRANCH"
+          export current_rmq_ref="$UPSTREAM_TAG"
+          export base_rmq_ref="$UPSTREAM_TAG"
+          export dep_amqp10_common="git https://github.com/Nordix/rabbitmq-amqp1.0-common.git $NORDIX_BRANCH"
           curl -L -o /tmp/hex-1.0.1.ez https://repo.hex.pm/installs/1.12.0/hex-1.0.1.ez
           printf '#!/bin/bash\nif [[ "$*" == "local.hex --force" ]]; then\n  exec /usr/bin/mix archive.install --force /tmp/hex-1.0.1.ez\nfi\nexec /usr/bin/mix "$@"\n' | sudo tee /usr/local/bin/mix > /dev/null
           sudo chmod +x /usr/local/bin/mix
