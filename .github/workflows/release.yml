@@ -47,10 +47,10 @@ jobs:
           git config --global url."https://github.com/".insteadOf git@github.com:
           git config --global credential.helper ''
           VERSION="${RELEASE_TAG#v}"
-          # v3.8.9-est-1 -> v3.8.9 (upstream tag)
-          UPSTREAM_TAG="$(echo $RELEASE_TAG | sed 's/-est-[0-9]*$//')"
-          # v3.8.9-est-1 -> v3.8.9-est (Nordix branch)
-          NORDIX_BRANCH="$(echo $RELEASE_TAG | sed 's/-[0-9]*$//')"
+          # v3.8.9-est-1 -> v3.8.9 (upstream tag), also handles v3.8.9-est
+          UPSTREAM_TAG="$(echo $RELEASE_TAG | sed 's/-est.*$//')"
+          # v3.8.9-est-1 -> v3.8.9-est (Nordix branch), also handles v3.8.9-est
+          NORDIX_BRANCH="$(echo $RELEASE_TAG | sed 's/-est-[0-9]*$/-est/')"
           export NORDIX_RELEASE_TAG="$NORDIX_BRANCH"
           export current_rmq_ref="$UPSTREAM_TAG"
           export base_rmq_ref="$UPSTREAM_TAG"
