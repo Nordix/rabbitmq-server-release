@@ -4,10 +4,12 @@ on:
   release:
     types: [published]
 
-jobs:
-  build-and-publish:
-    runs-on: ubuntu-22.04
+permissions:
+  contents: read
 
+jobs:
+  build:
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -60,7 +62,55 @@ jobs:
           rm -rf deps .erlang.mk
           make source-dist PROJECT_VERSION="$VERSION" \
             dep_amqp10_common="git https://github.com/Nordix/rabbitmq-amqp1.0-common.git $RELEASE_TAG"
-          find PACKAGES/ -name "*.tar.xz" -print
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: PACKAGES/*.tar.xz
+          retention-days: 1
+
+  generate-vex:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate CSAF VEX
+        run: |
+          chmod +x .github/scripts/git-csaf-vex-gen-ci.sh
+          .github/scripts/git-csaf-vex-gen-ci.sh . \
+            --output-dir vex-output \
+            --per-cve \
+            --release-tag "${{ github.ref_name }}"
+
+      - name: Upload VEX artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vex
+          path: vex-output/combined.csaf.json
+          retention-days: 1
+
+  publish:
+    runs-on: ubuntu-22.04
+    needs: [build, generate-vex]
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: PACKAGES/
+
+      - name: Download VEX
+        uses: actions/download-artifact@v4
+        with:
+          name: vex
+          path: vex-output/
 
       - name: Publish to Artifactory
         uses: jfrog/setup-jfrog-cli@v4
@@ -71,13 +121,23 @@ jobs:
         env:
           JF_URL: ${{ secrets.ARTIFACTORY_URL }}
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+          DEST: allies-erlang/rabbitmq-server/${{ github.ref_name }}/
         run: |
           jf rt upload \
             --url="$JF_URL" \
             --access-token="$JF_ACCESS_TOKEN" \
             --flat=true \
             "PACKAGES/*.tar.xz" \
-            "allies-erlang/rabbitmq-server/${{ github.ref_name }}/" \
+            "$DEST" \
+            --build-name="rabbitmq-server" \
+            --build-number="${{ github.run_number }}"
+
+          jf rt upload \
+            --url="$JF_URL" \
+            --access-token="$JF_ACCESS_TOKEN" \
+            --flat=true \
+            "vex-output/combined.csaf.json" \
+            "$DEST" \
             --build-name="rabbitmq-server" \
             --build-number="${{ github.run_number }}"
 
