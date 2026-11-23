@@ -113,18 +113,17 @@ jobs:
 
       - name: Publish to Artifactory
         uses: jfrog/setup-jfrog-cli@5a4fbe1e30dbb570cc62d2513421c4b9bc3c9959 # v4
+        env:
+          JF_URL: ${{ secrets.ARTIFACTORY_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
         with:
           version: latest
 
       - name: Upload to Artifactory
         env:
-          JF_URL: ${{ secrets.ARTIFACTORY_URL }}
-          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
           DEST: allies-erlang/rabbitmq-server/${{ github.ref_name }}/
         run: |
           jf rt upload \
-            --url="$JF_URL" \
-            --access-token="$JF_ACCESS_TOKEN" \
             --flat=true \
             "PACKAGES/*.tar.xz" \
             "$DEST" \
@@ -132,8 +131,6 @@ jobs:
             --build-number="${{ github.run_number }}"
 
           jf rt upload \
-            --url="$JF_URL" \
-            --access-token="$JF_ACCESS_TOKEN" \
             --flat=true \
             "vex-output/combined.csaf.json" \
             "$DEST" \
@@ -141,6 +138,4 @@ jobs:
             --build-number="${{ github.run_number }}"
 
           jf rt build-publish \
-            --url="$JF_URL" \
-            --access-token="$JF_ACCESS_TOKEN" \
             rabbitmq-server ${{ github.run_number }}
