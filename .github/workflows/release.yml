@@ -111,7 +111,7 @@ jobs:
           name: vex
           path: vex-output/
 
-      - name: Publish to Artifactory
+      - name: Setup JFrog CI
         uses: jfrog/setup-jfrog-cli@5a4fbe1e30dbb570cc62d2513421c4b9bc3c9959 # v4
         env:
           JF_URL: ${{ secrets.ARTIFACTORY_URL }}
