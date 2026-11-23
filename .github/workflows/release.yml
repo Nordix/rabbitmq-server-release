@@ -51,9 +51,8 @@ jobs:
           VERSION="${RELEASE_TAG#v}"
           # v3.8.9-est-1 -> v3.8.9 (upstream tag), also handles v3.8.9-est
           UPSTREAM_TAG="$(echo $RELEASE_TAG | sed 's/-est.*$//')"
-          # v3.8.9-est-1 -> v3.8.9-est (Nordix branch), also handles v3.8.9-est
-          NORDIX_BRANCH="$(echo $RELEASE_TAG | sed 's/-est-[0-9]*$/-est/')"
-          export NORDIX_RELEASE_TAG="$NORDIX_BRANCH"
+          # Nordix forks are fetched from the same release tag, e.g. v3.8.9-est-12
+          export NORDIX_RELEASE_TAG="$RELEASE_TAG"
           export current_rmq_ref="$UPSTREAM_TAG"
           export base_rmq_ref="$UPSTREAM_TAG"
           curl -L -o /tmp/hex-1.0.1.ez https://repo.hex.pm/installs/1.12.0/hex-1.0.1.ez
