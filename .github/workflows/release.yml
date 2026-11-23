@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install dependencies
         run: |
@@ -64,7 +64,7 @@ jobs:
             dep_amqp10_common="git https://github.com/Nordix/rabbitmq-amqp1.0-common.git $RELEASE_TAG"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: packages
           path: PACKAGES/*.tar.xz
@@ -77,7 +77,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
@@ -90,7 +90,7 @@ jobs:
             --release-tag "${{ github.ref_name }}"
 
       - name: Upload VEX artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: vex
           path: vex-output/combined.csaf.json
@@ -101,19 +101,19 @@ jobs:
     needs: [build, generate-vex]
     steps:
       - name: Download packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: packages
           path: PACKAGES/
 
       - name: Download VEX
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: vex
           path: vex-output/
 
       - name: Publish to Artifactory
-        uses: jfrog/setup-jfrog-cli@v4
+        uses: jfrog/setup-jfrog-cli@5a4fbe1e30dbb570cc62d2513421c4b9bc3c9959 # v4
         with:
           version: latest
 
