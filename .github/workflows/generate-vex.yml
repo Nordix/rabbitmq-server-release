@@ -22,7 +22,6 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Determine release tag
-        if: github.event_name != 'push'
         id: tag
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
