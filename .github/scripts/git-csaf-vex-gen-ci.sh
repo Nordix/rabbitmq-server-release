@@ -268,7 +268,7 @@ fi
 cve_count="${#CVE_MAP[@]}"
 
 if [ "$cve_count" -eq 0 ]; then
-  echo "No CVE references found in git history"
+  echo "No CVE references found in git history — nothing to emit"
   exit 0
 fi
 
