@@ -81,6 +81,8 @@ jobs:
           fetch-depth: 0
 
       - name: Generate CSAF VEX
+        id: generate-vex
+        continue-on-error: true
         run: |
           chmod +x .github/scripts/git-csaf-vex-gen-ci.sh
           .github/scripts/git-csaf-vex-gen-ci.sh . \
@@ -89,6 +91,7 @@ jobs:
             --release-tag "${{ github.ref_name }}"
 
       - name: Upload VEX artifacts
+        if: steps.generate-vex.outcome == 'success'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: vex
@@ -106,6 +109,8 @@ jobs:
           path: PACKAGES/
 
       - name: Download VEX
+        id: download-vex
+        continue-on-error: true
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: vex
@@ -126,9 +131,18 @@ jobs:
           jf rt upload \
             --flat=true \
             "PACKAGES/*.tar.xz" \
-            "$DEST"
+            "$DEST" \
+            --build-name="rabbitmq-server" \
+            --build-number="${{ github.run_number }}"
 
-          jf rt upload \
-            --flat=true \
-            "vex-output/combined.csaf.json" \
-            "$DEST"
+          if [ -f "vex-output/combined.csaf.json" ]; then
+            jf rt upload \
+              --flat=true \
+              "vex-output/combined.csaf.json" \
+              "$DEST" \
+              --build-name="rabbitmq-server" \
+              --build-number="${{ github.run_number }}"
+          fi
+
+          jf rt build-publish \
+            rabbitmq-server ${{ github.run_number }}
