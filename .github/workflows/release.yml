@@ -126,16 +126,9 @@ jobs:
           jf rt upload \
             --flat=true \
             "PACKAGES/*.tar.xz" \
-            "$DEST" \
-            --build-name="rabbitmq-server" \
-            --build-number="${{ github.run_number }}"
+            "$DEST"
 
           jf rt upload \
             --flat=true \
             "vex-output/combined.csaf.json" \
-            "$DEST" \
-            --build-name="rabbitmq-server" \
-            --build-number="${{ github.run_number }}"
-
-          jf rt build-publish \
-            rabbitmq-server ${{ github.run_number }}
+            "$DEST"
